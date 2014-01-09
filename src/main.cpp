@@ -370,8 +370,17 @@ int mainTracking(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    QVector<VideoTeror::BGRImage> templates;
+    VideoTeror::Helpers::Serialization::deserialize("templates.yml", templates);
+    for (int i = 0; i < templates.size(); i++)
+    {
+        cv::imshow("template", templates[i]);
+        cv::imwrite(("template-" + QString::number(i) + ".png").toStdString(), templates[i]);
+        cv::waitKey();
+    }
+
     //return mainAnotateTemplates(argc, argv);
-    return mainObjectDetection(argc, argv);
+    //return mainObjectDetection(argc, argv);
     //return mainMotion(argc, argv);
     //return mainTracking(argc, argv);
 }
