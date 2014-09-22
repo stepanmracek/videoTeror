@@ -1,0 +1,11 @@
+#ifndef CLASSIFIER_H
+#define CLASSIFIER_H
+
+namespace VideoTerror
+{
+namespace Linalg
+{
+class 
+}
+}
+#endif // CLASSIFIER_H
