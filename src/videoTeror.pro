@@ -7,4 +7,8 @@ SUBDIRS += vtsense \
     peopleDetection \
     gunDetection \
     faceDetection \
-    faceIdentification
+    faceIdentification \
+    nirFace \
+    evaluateFrgc \
+    pointTracking \
+    faceDetectionInVideo

@@ -1,5 +1,6 @@
 #include <QInputDialog>
 #include <QApplication>
+#include <QDebug>
 
 #include "MotionDetection/simplemotiondetector.h"
 #include "MotionDetection/opticalflowmotiondetector.h"
@@ -39,30 +40,34 @@ int main(int argc, char *argv[])
 
     cv::Scalar green(0, 255, 0);
     cv::Scalar gray(127, 127, 127);
-    cv::Mat bgrFrame;
+    cv::Mat bgrFrame, gui;
     VideoTeror::GrayscaleImage frame;
     char key;
-    std::vector<std::vector<cv::Point>> contours;
     while(video.read(bgrFrame) && (key = cv::waitKey(30)) != 27)
     {
-        if (key == ' ') cv::waitKey();
-
         cv::cvtColor(bgrFrame, frame, cv::COLOR_BGR2GRAY);
+        bgrFrame.copyTo(gui);
         VideoTeror::GrayscaleImage result = detector->detect(frame);
 
-        cv::findContours(result.clone(), contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-        for (int i = 0; i < contours.size(); i++)
+        auto rectangles = detector->getBoundingRectangles(result, 10000, 480*240);
+        foreach (const auto &rect, rectangles)
         {
-            cv::drawContours(bgrFrame, contours, i, gray);
-            cv::Rect rect = cv::boundingRect(contours[i]);
-            if (rect.area() > 10000 && rect.area() <= (480*240))
-            cv::rectangle(bgrFrame, rect, green);
+            cv::rectangle(gui, rect, green);
         }
 
         VideoTeror::GrayscaleImage masked = frame.mul(result/255);
         cv::imshow("masked", masked);
-        cv::imshow("frame", bgrFrame);
+        cv::imshow("frame", gui);
 
+        if (key == ' ' && (char)cv::waitKey() == 's')
+        {
+            qDebug() << "Writing images";
+            cv::imwrite("foreground.png", detector->getForeground());
+            cv::imwrite("gui.png", gui);
+            cv::imwrite("result.png", result);
+            cv::imwrite("masked.png", masked);
+            cv::imwrite("frame.png", bgrFrame);
+        }
     }
 
     return 0;

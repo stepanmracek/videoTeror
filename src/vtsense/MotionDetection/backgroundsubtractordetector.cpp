@@ -7,6 +7,11 @@ VideoTeror::MotionDetection::BackgroundSubtractorDetector::BackgroundSubtractorD
 
 }
 
+VideoTeror::GrayscaleImage VideoTeror::MotionDetection::BackgroundSubtractorDetector::getForeground()
+{
+    return foreground;
+}
+
 VideoTeror::GrayscaleImage VideoTeror::MotionDetection::BackgroundSubtractorDetector::detect(const GrayscaleImage &curFrame)
 {
     GrayscaleImage frame;
@@ -24,5 +29,9 @@ VideoTeror::GrayscaleImage VideoTeror::MotionDetection::BackgroundSubtractorDete
 
     morphClosure(result, morphClosureParam);
     cv::resize(result, result, cv::Size(curFrame.cols, curFrame.rows));
+
+    //cv::Mat bg;
+    //bs.getBackgroundImage(bg);
+    //cv::imshow("foreground", foreground);
     return result.clone();
 }

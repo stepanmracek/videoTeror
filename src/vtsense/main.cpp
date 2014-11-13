@@ -474,7 +474,7 @@ int mainTracking(int argc, char *argv[])
     return 0;
 }
 
-int main(int argc, char *argv[])
+int mainNull(int argc, char *argv[])
 {
     /*QVector<VideoTeror::BGRImage> templates;
     VideoTeror::Helpers::Serialization::deserialize("templates.yml", templates);

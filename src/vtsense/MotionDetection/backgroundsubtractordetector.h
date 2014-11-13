@@ -22,6 +22,7 @@ public:
     BackgroundSubtractorDetector(int morphClosureParam, int scaleParam);
 
     GrayscaleImage detect(const GrayscaleImage &curFrame);
+    GrayscaleImage getForeground();
 };
 
 }

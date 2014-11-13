@@ -1,5 +1,7 @@
 #include "motiondetector.h"
 
+#include <QVector>
+
 void VideoTeror::MotionDetection::MotionDetector::morphClosure(GrayscaleImage &bitmap, int parameter)
 {
     if (parameter <= 0) return;
@@ -30,5 +32,20 @@ VideoTeror::GrayscaleImage VideoTeror::MotionDetection::MotionDetector::getMeanH
         }
     }
 
+    return result;
+}
+
+QVector<cv::Rect> VideoTeror::MotionDetection::MotionDetector::getBoundingRectangles(
+        const VideoTeror::GrayscaleImage &detectionResult, int minArea, int maxArea)
+{
+    QVector<cv::Rect> result;
+    std::vector<std::vector<cv::Point>> contours;
+    cv::findContours(detectionResult.clone(), contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+    for (int i = 0; i < contours.size(); i++)
+    {
+        cv::Rect rect = cv::boundingRect(contours[i]);
+        if (rect.area() >= minArea && rect.area() <= maxArea)
+            result << rect;
+    }
     return result;
 }

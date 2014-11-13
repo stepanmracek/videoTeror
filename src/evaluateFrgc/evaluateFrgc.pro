@@ -1,5 +1,5 @@
 QT += core gui widgets
-TARGET = faceDetection
+TARGET = evaluateFrgc
 TEMPLATE = app
 
 include("../common.pri")

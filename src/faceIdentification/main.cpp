@@ -21,7 +21,7 @@ void drawDetectionResult(const Face::ObjectDetection::FaceDetection::DetectionRe
 void drawDetectionResult(const Face::ObjectDetection::FaceDetection::DetectionResult &result,
                          cv::Mat &img, const cv::Scalar &color)
 {
-    for (int i = 0; i < result.faceRegions.count(); i++)
+    for (int i = 0; i < result.faceRegions.size(); i++)
     {
         drawDetectionResult(result, i, img, color);
     }
@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
                                                   "/usr/share/opencv/haarcascades/haarcascade_righteye_2splits.xml");
 
     Face::Biometrics::MultiExtractor extractor("/home/stepo/build/videoteror/data/2d-extractor-2");
-    QList<Face::Biometrics::MultiTemplate> references;
+    std::vector<Face::Biometrics::MultiTemplate> references;
 
-    int threshold = 5;
+    int threshold = 8;
     cv::namedWindow("frame");
     cv::createTrackbar("threshold", "frame", &threshold, 10);
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
         if (key == ' ' && result.normalizedFaceImages.size() == 1)
         {
-            references << extractor.extract(result.normalizedFaceImages[0], 1, 1);
+            references.push_back(extractor.extract(result.normalizedFaceImages[0], 1, 1));
         }
         else if (references.size() > 0)
         {

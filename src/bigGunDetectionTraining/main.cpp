@@ -64,7 +64,7 @@ struct SiluetteExtractionData
         QVector<int> toDelete;
         for (int i = 0; i < pointsToTrack.size(); i++)
         {
-            if (pointsMissCounter[i] >= 5)
+            if (pointsMissCounter[i] >= 20)
             {
                 toDelete << i;
             }
@@ -168,7 +168,6 @@ int main(int, char *[])
 
     cv::FileStorage pcaStorage("pca", cv::FileStorage::WRITE);
     model.serialize(pcaStorage);
-
     model.show();
 
     QFile posFile("positives");
@@ -179,14 +178,38 @@ int main(int, char *[])
     negFile.open(QFile::WriteOnly);
     QTextStream negStream(&negFile);
 
+    QFile modesPosFiles[10];
+    QFile modesNegFiles[10];
+    QTextStream modesPosStreams[10];
+    QTextStream modesNegStreams[10];
+    for (int mode = 0; mode < 10; mode++)
+    {
+        modesPosFiles[mode].setFileName("mode" + QString::number(mode) + "pos");
+        modesPosFiles[mode].open(QFile::WriteOnly);
+        modesPosStreams[mode].setDevice(&modesPosFiles[mode]);
+
+        modesNegFiles[mode].setFileName("mode" + QString::number(mode) + "neg");
+        modesNegFiles[mode].open(QFile::WriteOnly);
+        modesNegStreams[mode].setDevice(&modesNegFiles[mode]);
+
+    }
+
     QVector<VideoTeror::MatF> samples;
     qDebug() << "projecting samples...";
     for (int i = 0; i < data.trainData.count(); i++)
     {
+        qDebug() << i;
         VideoTeror::MatF params = model.getParams(data.trainData[i]);
+        qDebug() << "params" << params.rows << params.cols;
         QTextStream &s = data.trainDataFlags[i] ? posStream : negStream;
         s << params(0) << " " << params(1) << " " << params(2) << endl;
         samples << params;
+
+        for (int mode = 0; mode < 10; mode++)
+        {
+            QTextStream &s = data.trainDataFlags[i] ? modesPosStreams[mode] : modesNegStreams[mode];
+            s << params(mode) << endl;
+        }
     }
     qDebug() << "...done";
 

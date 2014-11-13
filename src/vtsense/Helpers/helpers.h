@@ -14,9 +14,12 @@ namespace Helpers
 class Helpers
 {
 public:
+    static const char rightKey = 83;
+    static const char leftKey = 81;
+
     static VideoTeror::Points merge(VideoTeror::Points &in, float mergeDistanceThreshold);
 
-    static inline float euclDist(cv::Point2f &p1, cv::Point2f &p2)
+    static inline float euclDist(const cv::Point2f &p1, const cv::Point2f &p2)
     {
         return sqrt((p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y));
     }

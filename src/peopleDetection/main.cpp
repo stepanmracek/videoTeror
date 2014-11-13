@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < people.objects.count(); i++)
         {
             cv::Rect rect = people.objects[i];
-            cv::putText(gui, std::to_string(people.scores[i]), rect.tl(), cv::FONT_HERSHEY_SIMPLEX, 0.5, green);
+            cv::putText(gui, std::to_string(people.scores[i]), rect.tl() + cv::Point(0, -10), cv::FONT_HERSHEY_SIMPLEX, 0.5, green, 1, CV_AA);
             cv::rectangle(gui, rect, green);
 
             // is there some point already within the rectangle?
@@ -82,7 +82,10 @@ int main(int argc, char *argv[])
                 cv::rectangle(gui, rect, red, 3);
                 cv::circle(gui, p, 10, red, 3);
                 cv::imshow("video", gui);
-                cv::waitKey();
+                if ((char) cv::waitKey() == 's')
+                {
+                    cv::imwrite("shot.png", gui);
+                }
             }
         }
 
@@ -114,7 +117,7 @@ int main(int argc, char *argv[])
 
         std::stringstream ss;
         ss << "detected persons: " << personCounter;
-        cv::putText(gui, ss.str(), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, green);
+        cv::putText(gui, ss.str(), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, green, 1, CV_AA);
 
         cv::imshow("video", gui);
         frame.copyTo(prev);

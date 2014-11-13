@@ -22,8 +22,11 @@ protected:
 public:  
     typedef cv::Ptr<MotionDetector> Ptr;
     virtual GrayscaleImage detect(const GrayscaleImage &curFrame) = 0;
+    virtual GrayscaleImage getForeground() { return GrayscaleImage(); }
 
     void morphClosure(GrayscaleImage &bitmap, int parameter);
+
+    QVector<cv::Rect> getBoundingRectangles(const VideoTeror::GrayscaleImage &detectionResult, int minArea, int maxArea);
 };
 
 }

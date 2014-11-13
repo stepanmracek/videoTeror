@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
         foreach(const cv::Point2f &p, points)
         {
-            cv::circle(frame, cv::Point(p.x, p.y), 3, cv::Scalar(0, 255, 255), 1, CV_AA);
+            cv::circle(frame, cv::Point(p.x, p.y), 3, cv::Scalar(0, 255, 255), 2, CV_AA);
         }
 
         for (int i = 0; i < n; i++)
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
             if (matchingResults[i].score > 0.9 && x > 20)
             {
-                cv::circle(frame, cv::Point(x, y), 10, cv::Scalar(0, 0, 255), 1, CV_AA);
+                cv::circle(frame, cv::Point(x, y), 10, cv::Scalar(0, 0, 255), 3, CV_AA);
             }
         }
 

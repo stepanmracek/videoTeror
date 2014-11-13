@@ -21,7 +21,7 @@ ObjectDetector::DetectionResult HogPeopleDetector::detect(const BGRImage &curFra
 
     std::vector<double> weights;
     cv::resize(curFrame, frame, cv::Size(curFrame.cols*inputFrameScale, curFrame.rows*inputFrameScale));
-    hog.detectMultiScale(frame, locations, weights, 0, cv::Size(8, 8), cv::Size(32, 32), 1.2, threshold);
+    hog.detectMultiScale(frame, locations, weights, 0, cv::Size(8, 8), cv::Size(32, 32), 1.2, threshold); //1.2
 
     double invScale = 1.0/inputFrameScale;
     for (int i = 0; i < locations.size(); i++)

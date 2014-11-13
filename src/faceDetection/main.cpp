@@ -3,13 +3,15 @@
 #include <QDir>
 #include <QDebug>
 #include <objectdetection/facedetection.h>
+#include <linalg/imagefilterfactory.h>
+#include <linalg/matrixconverter.h>
 
 #include "Helpers/helpers.h"
 
 void drawDetectionResult(const Face::ObjectDetection::FaceDetection::DetectionResult &result,
                          cv::Mat &img, const cv::Scalar &color)
 {
-    for (int i = 0; i < result.faceRegions.count(); i++)
+    for (int i = 0; i < result.faceRegions.size(); i++)
     {
         cv::rectangle(img, result.faceRegions[i], color);
         cv::rectangle(img, result.leftEyes[i], color);
@@ -57,6 +59,29 @@ int main(int argc, char *argv[])
         }
 
         cv::imshow("faces", normFaces);
+
+        if (key == ' ' && (char)cv::waitKey() == 's')
+        {
+            qDebug() << "Writing images";
+            cv::imwrite("frame.png", frame);
+            cv::imwrite("faces.png", normFaces);
+
+            if (result.normalizedFaceImages.size() > 0)
+            {
+                std::vector<Face::LinAlg::ImageFilter::Ptr> filters = Face::LinAlg::ImageFilterFactory::create("dog-5-3;contrast;gaborAbs-3-4", ";");
+
+                for (int max = 1; max <= filters.size(); max++)
+                {
+                    Matrix img = Face::LinAlg::MatrixConverter::grayscaleImageToDoubleMatrix(result.normalizedFaceImages[0]);
+                    for (int i = 0; i < max; i++)
+                    {
+                        img = filters[i]->process(img);
+                    }
+                    double mn, mx; cv::minMaxIdx(img, &mn, &mx);
+                    cv::imwrite((QString::number(max) + ".png").toStdString(), (img-mn)/(mx-mn)*255);
+                }
+            }
+        }
     }
 }
 
