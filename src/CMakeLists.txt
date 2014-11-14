@@ -5,3 +5,4 @@ ADD_DEFINITIONS(-std=c++11)
 
 add_subdirectory(vtsense)
 add_subdirectory(peopleDetection)
+add_subdirectory(demo)
