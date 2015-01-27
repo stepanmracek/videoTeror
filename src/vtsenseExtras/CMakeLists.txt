@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(vtsense)
+project(vtsenseExtras)
+
+FIND_PACKAGE(Qt4 REQUIRED)
+INCLUDE(${QT_USE_FILE})
+ADD_DEFINITIONS(${QT_DEFINITIONS})
 
 file(GLOB_RECURSE ${PROJECT_NAME}.Sources "src/*.cpp")
 add_library (${PROJECT_NAME} SHARED ${${PROJECT_NAME}.Sources})
@@ -10,11 +14,5 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-	PUBLIC opencv_core
-	PUBLIC opencv_highgui
-	PUBLIC opencv_imgproc
-	PUBLIC opencv_ml
-	PUBLIC opencv_objdetect
-	PUBLIC opencv_features2d
-	PUBLIC opencv_video
+	PUBLIC vtsense
 )

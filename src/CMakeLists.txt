@@ -4,5 +4,6 @@ project(videoteror)
 ADD_DEFINITIONS(-std=c++11)
 
 add_subdirectory(vtsense)
-add_subdirectory(peopleDetection)
-add_subdirectory(demo)
+add_subdirectory(vtsenseExtras)
+add_subdirectory(face/src)
+add_subdirectory(apps)

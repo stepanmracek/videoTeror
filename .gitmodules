@@ -1,0 +1,3 @@
+[submodule "src/face"]
+	path = src/face
+	url = https://github.com/stepanmracek/face
