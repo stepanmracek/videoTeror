@@ -1,7 +1,7 @@
 #ifndef VT_HELPERS_H
 #define VT_HELPERS_H
 
-#include "vtsense/Tracking/tracker.h"
+#include "vtsense/Tracking/pointtracker.h"
 
 class QStringList;
 class QDir;

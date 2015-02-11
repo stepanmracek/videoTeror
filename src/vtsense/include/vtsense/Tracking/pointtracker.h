@@ -10,11 +10,11 @@ namespace VideoTeror
 namespace Tracking
 {
 
-class Tracker
+class PointTracker
 {
 public:
 
-    Tracker();
+    PointTracker() {}
 
     virtual VideoTeror::Points track(BGRImage prev, BGRImage next, Points &prevPoints) = 0;
 };

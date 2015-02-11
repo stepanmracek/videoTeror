@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8.12)
 project(vtsense)
 
 file(GLOB_RECURSE ${PROJECT_NAME}.Sources "src/*.cpp")
-add_library (${PROJECT_NAME} SHARED ${${PROJECT_NAME}.Sources})
+file(GLOB_RECURSE ${PROJECT_NAME}.Headers "include/*.h")
+add_library (${PROJECT_NAME} SHARED ${${PROJECT_NAME}.Sources} ${${PROJECT_NAME}.Headers})
 
 target_include_directories(${PROJECT_NAME}
 	PUBLIC include
