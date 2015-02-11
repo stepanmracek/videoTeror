@@ -12,22 +12,29 @@ HogPeopleDetector::HogPeopleDetector(double inputFrameScale, double threshold) :
     locations.reserve(50);
 }
 
-ObjectDetector::DetectionResult HogPeopleDetector::detect(const BGRImage &curFrame)
+std::vector<ObjectDetector::DetectionResult> HogPeopleDetector::detect(const BGRImage &curFrame)
 {
-    ObjectDetector::DetectionResult result;
+    std::vector<ObjectDetector::DetectionResult> result;
 
     std::vector<double> weights;
     cv::resize(curFrame, frame, cv::Size(curFrame.cols*inputFrameScale, curFrame.rows*inputFrameScale));
     hog.detectMultiScale(frame, locations, weights, 0, cv::Size(8, 8), cv::Size(32, 32), 1.2, threshold); //1.2
 
-    double invScale = 1.0/inputFrameScale;
+    //double invScale = 1.0/inputFrameScale;
     for (unsigned int i = 0; i < locations.size(); i++)
     {
-        double score = weights[i];
-        if (score < threshold) continue;
-        cv::Rect r = locations[i];
-        result.objects.push_back(cv::Rect(r.x*invScale, r.y*invScale, r.width*invScale, r.height*invScale));
-        result.scores = weights;
+        if (weights[i] < threshold) continue;
+        const cv::Rect &l = locations[i];
+
+        ObjectDetector::DetectionResult detection;
+        detection.id = i;
+        detection.score  = weights[i];
+        detection.region = cv::Rect_<double>(((double)l.x)/frame.cols, ((double)l.y)/frame.rows,
+                                             ((double)l.width)/frame.cols, ((double)l.height)/frame.rows);
+        detection.point = cv::Point2d(detection.region.x + detection.region.width/2,
+                                      detection.region.y + detection.region.height/2);
+
+        result.push_back(detection);
     }
     return result;
 }

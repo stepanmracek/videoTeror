@@ -14,11 +14,11 @@ int main(int, char *[])
     video.set(CV_CAP_PROP_POS_MSEC, 6 * 1000.0);
 
     VideoTeror::MachineLearning::ProbabilisticModel siluetteModel;
-    cv::FileStorage pmStorage("../../data/pca-siluette", cv::FileStorage::READ);
+    cv::FileStorage pmStorage("/home/stepo/git/videoTeror/data/pca-siluette", cv::FileStorage::READ);
     siluetteModel.deserialize(pmStorage);
 
     VideoTeror::MachineLearning::SVM svm;
-    cv::FileStorage svmStorage("../../data/svm-biggun", cv::FileStorage::READ);
+    cv::FileStorage svmStorage("/home/stepo/git/videoTeror/data/svm-biggun", cv::FileStorage::READ);
     svm.deserialize(svmStorage);
 
     cv::namedWindow("frame");
@@ -35,12 +35,12 @@ int main(int, char *[])
         bgrFrame.copyTo(guiFrame);
 
         VideoTeror::GrayscaleImage fgBitmap = bgDetect.detect(gsFrame);
-        VideoTeror::ObjectDetection::ObjectDetector::DetectionResult people = peopleDetect.detect(bgrFrame);
+        VideoTeror::ObjectDetection::ObjectDetector::DetectionResult::vector people = peopleDetect.detect(bgrFrame);
 
-        for (int i = 0; i < people.objects.size(); i++)
+        for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
         {
-            if (people.scores[i] <= 1) continue;
-            const cv::Rect &roi = people.objects[i];
+            if (dr.score <= 1) continue;
+            const cv::Rect &roi = dr.toProperRegion(bgrFrame.cols, bgrFrame.rows);
             if (roi.x < 0 || roi.y < 0 || roi.x + roi.width >= bgrFrame.cols || roi.y + roi.height >= bgrFrame.rows) continue;
 
             VideoTeror::MatF params = siluetteModel.getParams(fgBitmap(roi));

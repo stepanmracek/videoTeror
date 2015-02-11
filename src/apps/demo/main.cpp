@@ -58,12 +58,13 @@ int main(int argc, char *argv[])
     while((key = cv::waitKey(1)) != 27 && video.read(frame))
     {
         frame.copyTo(gui);
-        VideoTeror::ObjectDetection::ObjectDetector::DetectionResult people = detector.detect(frame);
+        VideoTeror::ObjectDetection::ObjectDetector::DetectionResult::vector people = detector.detect(frame);
 
-        for (unsigned int i = 0; i < people.objects.size(); i++)
+        for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
+        //for (unsigned int i = 0; i < people.objects.size(); i++)
         {
-            cv::Rect rect = people.objects[i];
-            cv::putText(gui, std::to_string(people.scores[i]), rect.tl() + cv::Point(0, -10), cv::FONT_HERSHEY_SIMPLEX, 0.5, green, 1, CV_AA);
+            cv::Rect rect = dr.toProperRegion(frame.cols, frame.rows);
+            cv::putText(gui, std::to_string(dr.score), rect.tl() + cv::Point(0, -10), cv::FONT_HERSHEY_SIMPLEX, 0.5, green, 1, CV_AA);
             cv::rectangle(gui, rect, green);
             result.persons[frameIndex].push_back(rect);
 
@@ -93,8 +94,10 @@ int main(int argc, char *argv[])
         for (int pIndex = 0; pIndex < points.size(); pIndex++)
         {
             bool hit = false;
-            for (const cv::Rect &rect : people.objects)
+            for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
+            //for (const cv::Rect &rect : people.objects)
             {
+                cv::Rect rect = dr.toProperRegion(frame.cols, frame.rows);
                 if (rect.contains(points[pIndex]))
                 {
                     hit = true;

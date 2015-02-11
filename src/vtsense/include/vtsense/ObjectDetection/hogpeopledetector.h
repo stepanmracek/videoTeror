@@ -22,7 +22,7 @@ private:
 public:
     HogPeopleDetector(double inputFrameScale = 0.5, double threshold = 3.0);
 
-    virtual DetectionResult detect(const BGRImage &curFrame);
+    virtual std::vector<DetectionResult> detect(const BGRImage &curFrame);
 };
 
 }

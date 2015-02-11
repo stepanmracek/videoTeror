@@ -12,7 +12,7 @@ struct SiluetteExtractionData
     cv::VideoCapture video;
     std::vector<VideoTeror::GrayscaleImage> trainData;
     std::vector<bool> trainDataFlags;
-    VideoTeror::ObjectDetection::ObjectDetector::DetectionResult lastDetect;
+    VideoTeror::ObjectDetection::ObjectDetector::DetectionResult::vector lastDetect;
 
     cv::Mat prevBgrFrame;
     cv::Mat bgrFrame;
@@ -41,12 +41,12 @@ struct SiluetteExtractionData
         return result;
     }
 
-    int getFlag(int detectionIndex)
+    int getFlag(int detectionIndex, const cv::Size &frameSize)
     {
         for (unsigned int i = 0; i < pointsToTrack.size(); i++)
         {
             pointsMissCounter[i]++;
-            if (lastDetect.objects[detectionIndex].contains(pointsToTrack[i]))
+            if (lastDetect[detectionIndex].toProperRegion(frameSize).contains(pointsToTrack[i]))
             {
                 pointsMissCounter[i] = 0;
                 return pointsFlag[i];
@@ -114,23 +114,25 @@ int main(int, char *[])
             data.pointsToTrack = data.tracker.track(data.prevBgrFrame, data.bgrFrame, data.pointsToTrack);
         data.cleanPoints();
 
-        for (unsigned int i = 0; i < data.lastDetect.objects.size(); i++)
+        cv::Size frameSize(data.bgrFrame.cols, data.bgrFrame.rows);
+        for (unsigned int i = 0; i < data.lastDetect.size(); i++)
         {
-            if (data.lastDetect.scores[i] <= 1) continue;
+            const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr = data.lastDetect[i];
+            if (dr.score <= 1) continue;
 
-            int flag = data.getFlag(i);
+            int flag = data.getFlag(i, frameSize);
             cv::Scalar color;
             if (flag == 1) color = green;
             else if (flag == 0) color = red;
             else color = white;
-            cv::rectangle(guiFrame, data.lastDetect.objects[i], color);
-            cv::putText(guiFrame, std::to_string(data.lastDetect.scores[i]),
-                        data.lastDetect.objects[i].tl() + cv::Point(0, 15),
+            cv::rectangle(guiFrame, dr.toProperRegion(frameSize), color);
+            cv::putText(guiFrame, std::to_string(dr.score),
+                        dr.toProperRegion(frameSize).tl() + cv::Point(0, 15),
                         CV_FONT_HERSHEY_SIMPLEX, 0.5, color);
 
             if (flag == 0 || flag == 1)
             {
-                cv::Rect r = VideoTeror::Helpers::Helpers::crop(data.lastDetect.objects[i], fgBitmap.cols, fgBitmap.rows);
+                cv::Rect r = VideoTeror::Helpers::Helpers::crop(dr.toProperRegion(frameSize), fgBitmap.cols, fgBitmap.rows);
                 cv::Mat m;
                 cv::resize(fgBitmap(r), m, cv::Size(32, 64));
                 data.trainData.push_back(m);

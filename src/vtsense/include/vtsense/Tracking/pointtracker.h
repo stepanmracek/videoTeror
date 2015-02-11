@@ -1,5 +1,5 @@
-#ifndef VT_TRACKER_H
-#define VT_TRACKER_H
+#ifndef VT_POINTTRACKER_H
+#define VT_POINTTRACKER_H
 
 #include <vector>
 
@@ -22,4 +22,4 @@ public:
 }
 }
 
-#endif // VT_TRACKER_H
+#endif // VT_POINTTRACKER_H

@@ -16,11 +16,36 @@ public:
 
     struct DetectionResult
     {
-        std::vector<cv::Rect> objects;
-        std::vector<double> scores;
+        int id;
+        double score;
+        cv::Point2d point;
+        cv::Rect_<double> region;
+
+        typedef std::vector<DetectionResult> vector;
+
+        cv::Point toProperPoint(const cv::Size &frameSize) const
+        {
+            return cv::Point(point.x * frameSize.width, point.y * frameSize.height);
+        }
+
+        cv::Point toProperPoint(int width, int height) const
+        {
+            return toProperPoint(cv::Size(width, height));
+        }
+
+        cv::Rect toProperRegion(const cv::Size &frameSize) const
+        {
+            return cv::Rect(region.x * frameSize.width, region.y * frameSize.height,
+                            region.width * frameSize.width, region.height * frameSize.height);
+        }
+
+        cv::Rect toProperRegion(int width, int height) const
+        {
+            return toProperRegion(cv::Size(width, height));
+        }
     };
 
-    virtual DetectionResult detect(const BGRImage &curFrame) = 0;
+    virtual DetectionResult::vector detect(const BGRImage &curFrame) = 0;
 };
 
 }

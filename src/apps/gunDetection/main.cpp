@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     VideoTeror::Helpers::Serialization::deserialize("../../data/templates.yml", templates);
 
     VideoTeror::ObjectDetection::HogPeopleDetector detector(0.5, 3.0);
-    VideoTeror::ObjectDetection::ObjectDetector::DetectionResult people;
+    VideoTeror::ObjectDetection::ObjectDetector::DetectionResult::vector people;
 
     VideoTeror::ObjectDetection::TemplateMatcher matcher(templates);
     VideoTeror::Tracking::PyrLKTracker tracker;
@@ -30,13 +30,13 @@ int main(int argc, char *argv[])
         if (key == ' ') cv::waitKey();
 
         people = detector.detect(frame);
-        unsigned int n = people.objects.size();
+        unsigned int n = people.size();
         std::cout << "detected persons:" << std::endl;
 
         std::vector<VideoTeror::ObjectDetection::TemplateMatcher::Result> matchingResults(n);
         for (unsigned int i = 0; i < n; i++)
         {
-            cv::Rect rect = VideoTeror::Helpers::Helpers::crop(people.objects[i], frame.cols, frame.rows);
+            cv::Rect rect = VideoTeror::Helpers::Helpers::crop(people[i].toProperRegion(frame.cols, frame.rows), frame.cols, frame.rows);
             if ((rect.width <= 1) || (rect.height <= 1)) continue;
 
             matchingResults[i] = matcher.match(frame(rect));
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 
         for (unsigned int i = 0; i < n; i++)
         {
-            cv::Rect &r = people.objects[i];
+            cv::Rect r = people[i].toProperRegion(frame.cols, frame.rows);
             int x = r.x + matchingResults[i].location.x;
             int y = r.y + matchingResults[i].location.y;
             if (matchingResults[i].score > 0.9 && x > 20)
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
 
         for (unsigned int i = 0; i < n; i++)
         {
-            cv::Rect &r = people.objects[i];
+            cv::Rect r = people[i].toProperRegion(frame.cols, frame.rows);
             int x = r.x + matchingResults[i].location.x;
             int y = r.y + matchingResults[i].location.y;
             cv::rectangle(frame, r, cv::Scalar(0,255,0));
