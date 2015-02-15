@@ -31,8 +31,8 @@ std::vector<ObjectDetector::DetectionResult> HogPeopleDetector::detect(const BGR
         detection.score  = weights[i];
         detection.region = cv::Rect_<double>(((double)l.x)/frame.cols, ((double)l.y)/frame.rows,
                                              ((double)l.width)/frame.cols, ((double)l.height)/frame.rows);
-        detection.point = cv::Point2d(detection.region.x + detection.region.width/2,
-                                      detection.region.y + detection.region.height/2);
+        detection.point = cv::Point2d(detection.region.x + detection.region.width*0.5,
+                                      detection.region.y + detection.region.height*0.33);
 
         result.push_back(detection);
     }

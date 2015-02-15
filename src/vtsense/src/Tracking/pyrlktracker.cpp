@@ -6,7 +6,7 @@ PyrLKTracker::PyrLKTracker()
 {
 }
 
-VideoTeror::Points PyrLKTracker::track(BGRImage prev, BGRImage next, Points &prevPoints)
+VideoTeror::Points PyrLKTracker::track(GrayscaleImage prev, GrayscaleImage next, Points &prevPoints)
 {
     std::vector<unsigned char> status;
     std::vector<float> errors;

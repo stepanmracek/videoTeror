@@ -16,7 +16,7 @@ public:
 
     PointTracker() {}
 
-    virtual VideoTeror::Points track(BGRImage prev, BGRImage next, Points &prevPoints) = 0;
+    virtual VideoTeror::Points track(GrayscaleImage prev, GrayscaleImage next, Points &prevPoints) = 0;
 };
 
 }

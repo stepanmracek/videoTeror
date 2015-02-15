@@ -46,7 +46,7 @@ struct SiluetteExtractionData
         for (unsigned int i = 0; i < pointsToTrack.size(); i++)
         {
             pointsMissCounter[i]++;
-            if (lastDetect[detectionIndex].toProperRegion(frameSize).contains(pointsToTrack[i]))
+            if (lastDetect[detectionIndex].toPixelRegion(frameSize).contains(pointsToTrack[i]))
             {
                 pointsMissCounter[i] = 0;
                 return pointsFlag[i];
@@ -125,14 +125,14 @@ int main(int, char *[])
             if (flag == 1) color = green;
             else if (flag == 0) color = red;
             else color = white;
-            cv::rectangle(guiFrame, dr.toProperRegion(frameSize), color);
+            cv::rectangle(guiFrame, dr.toPixelRegion(frameSize), color);
             cv::putText(guiFrame, std::to_string(dr.score),
-                        dr.toProperRegion(frameSize).tl() + cv::Point(0, 15),
+                        dr.toPixelRegion(frameSize).tl() + cv::Point(0, 15),
                         CV_FONT_HERSHEY_SIMPLEX, 0.5, color);
 
             if (flag == 0 || flag == 1)
             {
-                cv::Rect r = VideoTeror::Helpers::Helpers::crop(dr.toProperRegion(frameSize), fgBitmap.cols, fgBitmap.rows);
+                cv::Rect r = VideoTeror::Helpers::Helpers::crop(dr.toPixelRegion(frameSize), fgBitmap.cols, fgBitmap.rows);
                 cv::Mat m;
                 cv::resize(fgBitmap(r), m, cv::Size(32, 64));
                 data.trainData.push_back(m);

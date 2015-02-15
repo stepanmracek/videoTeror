@@ -40,7 +40,7 @@ int main(int, char *[])
         for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
         {
             if (dr.score <= 1) continue;
-            const cv::Rect &roi = dr.toProperRegion(bgrFrame.cols, bgrFrame.rows);
+            const cv::Rect &roi = dr.toPixelRegion(bgrFrame.cols, bgrFrame.rows);
             if (roi.x < 0 || roi.y < 0 || roi.x + roi.width >= bgrFrame.cols || roi.y + roi.height >= bgrFrame.rows) continue;
 
             VideoTeror::MatF params = siluetteModel.getParams(fgBitmap(roi));

@@ -1,23 +1,5 @@
 #include "vtsense/ObjectDetection/hogpeopledetector.h"
-#include "vtsense/Tracking/pyrlktracker.h"
-
-void cleanUpPoints(VideoTeror::Points &points, std::vector<int> &missCounter, const std::vector<int> &toRemove)
-{
-    VideoTeror::Points newPoints;
-    std::vector<int> newMissCounter;
-
-    for (int i = 0; i < points.size(); i++)
-    {
-        if (std::find(toRemove.begin(), toRemove.end(), i) == toRemove.end())
-        {
-            newPoints.push_back(points[i]);
-            newMissCounter.push_back(missCounter[i]);
-        }
-    }
-
-    points = newPoints;
-    missCounter = newMissCounter;
-}
+#include "vtsense/Tracking/objecttracker.h"
 
 struct Result
 {
@@ -32,7 +14,14 @@ struct Result
 
 int main(int argc, char *argv[])
 {
-    Result result;
+    /*cv::Point2f p1(0.123, 0.456);
+    cv::Point2d p2 = p1;
+    cv::Point2f p3 = p2;
+    cv::Point2d p4 = p3;
+    std::cout << p1.x << " " << p2.x << " " << p3.x << " " << p4.x << std::endl;
+    std::cout << p1.y << " " << p2.y << " " << p3.y << " " << p4.y << std::endl;*/
+
+    cv::Scalar green(0, 255, 0);
 
     if (argc != 2)
     {
@@ -41,100 +30,49 @@ int main(int argc, char *argv[])
     }
 
     cv::VideoCapture video(argv[1]);
-
-    VideoTeror::Points points;
-    std::vector<int> missCounter;
-    int forgetThreshold = 120;
-
     VideoTeror::ObjectDetection::HogPeopleDetector detector(0.5, 3.0);
-    VideoTeror::Tracking::PyrLKTracker tracker;
+    VideoTeror::Tracking::ObjectTracker tracker(detector);
+    VideoTeror::Tracking::ObjectTracker::Result result;
 
-    cv::Scalar green(0, 255, 0);
-    cv::Scalar red(0, 0, 255);
+    int index = 260;
+    video.set(CV_CAP_PROP_POS_FRAMES, index);
+
     VideoTeror::BGRImage frame, prev, gui;
-    int frameIndex = 0;
     video.read(prev);
-    char key;
-    while((key = cv::waitKey(1)) != 27 && video.read(frame))
+    cv::Size s(prev.cols, prev.rows);
+
+    index++;
+    while (video.read(frame) && cv::waitKey(1) < 0)
     {
+        tracker.detectAndTrack(prev, frame, index, result);
         frame.copyTo(gui);
-        VideoTeror::ObjectDetection::ObjectDetector::DetectionResult::vector people = detector.detect(frame);
 
-        for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
-        //for (unsigned int i = 0; i < people.objects.size(); i++)
+        for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &o : result.objectsPerFrame[index])
         {
-            cv::Rect rect = dr.toProperRegion(frame.cols, frame.rows);
-            cv::putText(gui, std::to_string(dr.score), rect.tl() + cv::Point(0, -10), cv::FONT_HERSHEY_SIMPLEX, 0.5, green, 1, CV_AA);
-            cv::rectangle(gui, rect, green);
-            result.persons[frameIndex].push_back(rect);
-
-            // is there some point already within the rectangle?
-            bool hit = false;
-            for (int j = 0; j < points.size(); j++)
-            {
-                if (rect.contains(points[j])) hit = true;
-            }
-
-            if (!hit)
-            {
-                result.personCount++;
-                VideoTeror::Point p(rect.x + rect.width*0.5, rect.y + rect.height*0.33);
-                points.push_back(p);
-                missCounter.push_back(0);
-                //qDebug() << "new point" << p.x << p.y;
-                cv::rectangle(gui, rect, red, 3);
-                cv::circle(gui, p, 10, red, 3);
-                cv::imshow("video", gui);
-                //cv::waitKey(1);
-            }
+            cv::rectangle(gui, o.toPixelRegion(s), green);
+            cv::circle(gui, o.toPixelPoint(s), 3, green, 1, CV_AA);
+            cv::putText(gui, std::to_string(o.id) + ": " + std::to_string(o.score),
+                        o.toPixelRegion(s).tl() + cv::Point(0, 15), cv::FONT_HERSHEY_SIMPLEX, 0.5, green, 1, CV_AA);
         }
 
-        // is some point outside of rectangle for long time?
-        std::vector<int> toRemove;
-        for (int pIndex = 0; pIndex < points.size(); pIndex++)
-        {
-            bool hit = false;
-            for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
-            //for (const cv::Rect &rect : people.objects)
-            {
-                cv::Rect rect = dr.toProperRegion(frame.cols, frame.rows);
-                if (rect.contains(points[pIndex]))
-                {
-                    hit = true;
-                    break;
-                }
-            }
-
-            if (!hit) missCounter[pIndex]++;
-            if (missCounter[pIndex] >= forgetThreshold) toRemove.push_back(pIndex);
-        }
-        cleanUpPoints(points, missCounter, toRemove);
-
-        if (!points.empty()) points = tracker.track(prev, frame, points);
-        for (VideoTeror::Point p : points)
-        {
-            cv::circle(gui, p, 5, green);
-        }
-
-
-        std::stringstream ss;
-        ss << "detected persons: " << result.personCount;
-        cv::putText(gui, ss.str(), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, green, 1, CV_AA);
+        frame.copyTo(prev);
 
         cv::imshow("video", gui);
-        frame.copyTo(prev);
-        frameIndex++;
+        index++;
     }
 
-    for (const std::pair<int, std::vector<cv::Rect>> kvp : result.persons)
+    VideoTeror::GrayscaleImage trajectories = VideoTeror::GrayscaleImage::ones(s)*255;
+    for (const std::pair<int, VideoTeror::Tracking::Trajectory> &t : result.trajectories)
     {
-        std::cout << "frame: " << kvp.first << std::endl;
-        for (const cv::Rect &rect : result.persons[kvp.first])
+        for (int i = 1; i < t.second.points.size(); i++)
         {
-            std::cout << "  " << rect.x << " " << rect.y << " " << rect.width << " " << rect.height << std::endl;
+            cv::Point prev(t.second.points[i-1].x * s.width, t.second.points[i-1].y * s.height);
+            cv::Point next(t.second.points[i].x * s.width, t.second.points[i].y * s.height);
+            cv::line(trajectories, prev, next, 0);
         }
     }
-    std::cout << "Detected persons: " << result.personCount << std::endl;
+    cv::imshow("trajectories", trajectories);
+    cv::waitKey(0);
 
     return 0;
 }

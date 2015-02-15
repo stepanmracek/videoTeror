@@ -13,7 +13,7 @@ class PyrLKTracker : public PointTracker
 public:
     PyrLKTracker();
 
-    Points track(BGRImage prev, BGRImage next, Points &prevPoints);
+    Points track(GrayscaleImage prev, GrayscaleImage next, Points &prevPoints);
 };
 
 }

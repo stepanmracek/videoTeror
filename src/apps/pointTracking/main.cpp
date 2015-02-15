@@ -80,10 +80,14 @@ int main(int argc, char *argv[])
     char key;
     while((key = cv::waitKey(25)) != 27 && video.read(frame))
     {
+        VideoTeror::GrayscaleImage prevGSFrame, currentGSFrame;
+        cv::cvtColor(prev, prevGSFrame, CV_BGR2GRAY);
+        cv::cvtColor(frame, currentGSFrame, CV_BGR2GRAY);
+
         frame.copyTo(gui);
         if (key == ' ') cv::waitKey();
 
-        if (!points.empty()) points = tracker.track(prev, frame, points);
+        if (!points.empty()) points = tracker.track(prevGSFrame, currentGSFrame, points);
         for (VideoTeror::Point p : points)
         {
             cv::circle(gui, p, 5, green);

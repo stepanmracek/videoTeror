@@ -23,25 +23,35 @@ public:
 
         typedef std::vector<DetectionResult> vector;
 
-        cv::Point toProperPoint(const cv::Size &frameSize) const
+        static const DetectionResult & findResult(const vector &objects, int id)
+        {
+            for (const auto &o : objects)
+            {
+                if (o.id == id) return o;
+            }
+
+            std::cerr << "object " << id << " not found" << std::endl;
+        }
+
+        cv::Point toPixelPoint(const cv::Size &frameSize) const
         {
             return cv::Point(point.x * frameSize.width, point.y * frameSize.height);
         }
 
-        cv::Point toProperPoint(int width, int height) const
+        cv::Point toPixelPoint(int width, int height) const
         {
-            return toProperPoint(cv::Size(width, height));
+            return toPixelPoint(cv::Size(width, height));
         }
 
-        cv::Rect toProperRegion(const cv::Size &frameSize) const
+        cv::Rect toPixelRegion(const cv::Size &frameSize) const
         {
             return cv::Rect(region.x * frameSize.width, region.y * frameSize.height,
                             region.width * frameSize.width, region.height * frameSize.height);
         }
 
-        cv::Rect toProperRegion(int width, int height) const
+        cv::Rect toPixelRegion(int width, int height) const
         {
-            return toProperRegion(cv::Size(width, height));
+            return toPixelRegion(cv::Size(width, height));
         }
     };
 
