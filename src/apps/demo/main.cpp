@@ -1,29 +1,11 @@
 #include "vtsense/ObjectDetection/hogpeopledetector.h"
 #include "vtsense/Tracking/objecttracker.h"
 
-struct Result
-{
-    Result()
-    {
-        personCount = 0;
-    }
-
-    int personCount;
-    std::map<int, std::vector<cv::Rect>> persons;
-};
-
 int main(int argc, char *argv[])
 {
-    /*cv::Point2f p1(0.123, 0.456);
-    cv::Point2d p2 = p1;
-    cv::Point2f p3 = p2;
-    cv::Point2d p4 = p3;
-    std::cout << p1.x << " " << p2.x << " " << p3.x << " " << p4.x << std::endl;
-    std::cout << p1.y << " " << p2.y << " " << p3.y << " " << p4.y << std::endl;*/
-
     cv::Scalar green(0, 255, 0);
 
-    if (argc != 2)
+    if (argc < 2)
     {
         std::cout << "usage: " << argv[0] << " /path/to/video.file" << std::endl;
         return 0;
@@ -34,7 +16,7 @@ int main(int argc, char *argv[])
     VideoTeror::Tracking::ObjectTracker tracker(detector);
     VideoTeror::Tracking::ObjectTracker::Result result;
 
-    int index = 260;
+    int index = 0;
     video.set(CV_CAP_PROP_POS_FRAMES, index);
 
     VideoTeror::BGRImage frame, prev, gui;
@@ -61,16 +43,7 @@ int main(int argc, char *argv[])
         index++;
     }
 
-    VideoTeror::GrayscaleImage trajectories = VideoTeror::GrayscaleImage::ones(s)*255;
-    for (const std::pair<int, VideoTeror::Tracking::Trajectory> &t : result.trajectories)
-    {
-        for (int i = 1; i < t.second.points.size(); i++)
-        {
-            cv::Point prev(t.second.points[i-1].x * s.width, t.second.points[i-1].y * s.height);
-            cv::Point next(t.second.points[i].x * s.width, t.second.points[i].y * s.height);
-            cv::line(trajectories, prev, next, 0);
-        }
-    }
+    VideoTeror::GrayscaleImage trajectories = result.drawTrajectories(s);
     cv::imshow("trajectories", trajectories);
     cv::waitKey(0);
 

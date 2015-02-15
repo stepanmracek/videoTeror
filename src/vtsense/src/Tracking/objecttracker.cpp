@@ -161,3 +161,18 @@ int ObjectTracker::getTrackedPointIndex(const ObjectDetection::ObjectDetector::D
     return -1;
 }
 
+VideoTeror::GrayscaleImage ObjectTracker::Result::drawTrajectories(const cv::Size &size) const
+{
+    VideoTeror::GrayscaleImage result = VideoTeror::GrayscaleImage::ones(size)*255;
+    for (const std::pair<int, VideoTeror::Tracking::Trajectory> &t : trajectories)
+    {
+        for (int i = 1; i < t.second.points.size(); i++)
+        {
+            cv::Point prev(t.second.points[i-1].x * size.width, t.second.points[i-1].y * size.height);
+            cv::Point next(t.second.points[i].x * size.width, t.second.points[i].y * size.height);
+            cv::line(result, prev, next, 0);
+        }
+    }
+
+    return result;
+}

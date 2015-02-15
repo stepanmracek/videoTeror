@@ -31,6 +31,8 @@ public:
     {
         std::map<int, Trajectory> trajectories;
         std::map<int, ObjectDetection::ObjectDetector::DetectionResult::vector> objectsPerFrame;
+
+        VideoTeror::GrayscaleImage drawTrajectories(const cv::Size &size) const;
     };
 
     ObjectTracker(ObjectDetection::ObjectDetector &detector, const Settings &settings = Settings());
