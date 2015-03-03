@@ -61,7 +61,6 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
         }
     }
 
-    // is some point outside of rectangle for long time?
     std::vector<int> toRemove;
     for (int pIndex = 0; pIndex < trackingPoints.size(); pIndex++)
     {
@@ -95,15 +94,12 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
                 object.region.y = object.region.y + (p.y - object.point.y);
                 object.point = p;
             }
-            /*else
-            {
-                std::cout << dist << " " << settings.maxMoveThreshold << std::endl;
-            }*/
 
             result.trajectories[id].points.push_back(object.point);
             result.objectsPerFrame[frameIndex].push_back(object);
         }
 
+        // is some point outside of rectangle for long time?
         if (missCounter[pIndex] >= settings.forgetThreshold) toRemove.push_back(pIndex);
     }
 
@@ -122,6 +118,7 @@ ObjectTracker::Result ObjectTracker::detectAndTrack(cv::VideoCapture &source)
     while(source.read(frame))
     {
         detectAndTrack(prev, frame, frameCounter, result);
+        frame.copyTo(prev);
         frameCounter++;
     }
 
@@ -151,14 +148,24 @@ void ObjectTracker::cleanUpPoints(const std::vector<int> &toRemove)
 
 int ObjectTracker::getTrackedPointIndex(const ObjectDetection::ObjectDetector::DetectionResult &detectedObject, const cv::Size &frameSize)
 {
+    int minIndex = -1;
+    double minDistance = 1e300;
     int n = trackingPoints.size();
     for (int i = 0; i < n; i++)
     {
         bool hit = detectedObject.toPixelRegion(frameSize).contains(cv::Point(trackingPoints[i].x, trackingPoints[i].y));
-        if (hit) return i;
+        if (hit)
+        {
+            double dist = VideoTeror::Helpers::Helpers::euclDist(detectedObject.toPixelPoint(frameSize), trackingPoints[i]);
+            if (dist < minDistance)
+            {
+                minDistance = dist;
+                minIndex = i;
+            }
+        }
     }
 
-    return -1;
+    return minIndex;
 }
 
 VideoTeror::GrayscaleImage ObjectTracker::Result::drawTrajectories(const cv::Size &size) const

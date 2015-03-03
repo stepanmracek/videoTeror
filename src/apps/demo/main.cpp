@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     VideoTeror::Tracking::ObjectTracker tracker(detector);
     VideoTeror::Tracking::ObjectTracker::Result result;
 
-    int index = 0;
+    /*int index = 0;
     video.set(CV_CAP_PROP_POS_FRAMES, index);
 
     VideoTeror::BGRImage frame, prev, gui;
@@ -41,7 +41,13 @@ int main(int argc, char *argv[])
 
         cv::imshow("video", gui);
         index++;
-    }
+    }*/
+
+    result = tracker.detectAndTrack(video);
+    video.set(CV_CAP_PROP_POS_FRAMES, 0);
+    VideoTeror::BGRImage frame;
+    video.read(frame);
+    cv::Size s(frame.cols, frame.rows);
 
     VideoTeror::GrayscaleImage trajectories = result.drawTrajectories(s);
     cv::imshow("trajectories", trajectories);
