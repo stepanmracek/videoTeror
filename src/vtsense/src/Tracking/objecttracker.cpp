@@ -64,14 +64,29 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
     std::vector<int> toRemove;
     for (int pIndex = 0; pIndex < trackingPoints.size(); pIndex++)
     {
+        // Check if point is in some rectangle
         bool hit = false;
         for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &o : currentFrameObjects)
         {
             cv::Rect rect = o.toPixelRegion(frameSize);
             if (rect.contains(trackingPoints[pIndex]))
             {
-                hit = true;
-                break;
+                // But at the same time, the point has to be the nearest to the rectangle center
+                cv::Point rectCenter = o.toPixelPoint(frameSize);
+                double dist = VideoTeror::Helpers::Helpers::euclDist(trackingPoints[pIndex], rectCenter);
+                double minDist = 1e300;
+                for (int i = 0; i < trackingPoints.size(); i++)
+                {
+                    if (i == pIndex) continue;
+                    double d = VideoTeror::Helpers::Helpers::euclDist(trackingPoints[i], rectCenter);
+                    if (d < minDist) minDist = d;
+                }
+
+                if (dist < minDist)
+                {
+                    hit = true;
+                    break;
+                }
             }
         }
 
