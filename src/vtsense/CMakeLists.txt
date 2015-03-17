@@ -21,3 +21,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC opencv_features2d
 	PUBLIC opencv_video
 )
+
+install(TARGETS ${PROJECT_NAME}	LIBRARY DESTINATION lib)
+install(DIRECTORY include/vtsense DESTINATION include)
