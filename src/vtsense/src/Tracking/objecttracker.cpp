@@ -14,7 +14,7 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
                                    const VideoTeror::BGRImage &currentFrame,
                                    int frameIndex, Result &result)
 {
-    std::cout << "frame " << frameIndex << std::endl;
+    //std::cout << "frame " << frameIndex << std::endl;
     const cv::Size frameSize(prevFrame.cols, prevFrame.rows);
 
     VideoTeror::GrayscaleImage prevGSFrame, currentGSFrame;
@@ -122,8 +122,9 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
     cleanUpPoints(toRemove);
 }
 
-ObjectTracker::Result ObjectTracker::detectAndTrack(cv::VideoCapture &source)
+ObjectTracker::Result ObjectTracker::detectAndTrack(cv::VideoCapture &source, void (*progress)(int))
 {
+    int len = source.get(CV_CAP_PROP_FRAME_COUNT);
     int frameCounter = 1;
     ObjectTracker::Result result;
 
@@ -134,6 +135,13 @@ ObjectTracker::Result ObjectTracker::detectAndTrack(cv::VideoCapture &source)
     {
         detectAndTrack(prev, frame, frameCounter, result);
         frame.copyTo(prev);
+
+        if (progress)
+        {
+            int percent = frameCounter * 100 / len;
+            progress(percent);
+        }
+
         frameCounter++;
     }
 

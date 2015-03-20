@@ -7,6 +7,16 @@
 #include "vtsense/Tracking/objecttracker.h"
 #include "vtsenseExtras/dircrawler.h"
 
+void progressFunc(int percent)
+{
+    std::cout << "\r";
+    for (int i = 0; i < percent; i+=2)
+        std::cout << "#";
+    int remain = 100 - percent;
+    for (int i = 0; i < remain; i+=2)
+        std::cout << "-";
+}
+
 int main(int argc, char *argv[])
 {
     QStringList filters; filters << "*.mov";
@@ -22,12 +32,21 @@ int main(int argc, char *argv[])
 
     cv::Scalar green(0, 255, 0);
 
-    VideoTeror::ObjectDetection::HaarDetector detector("/home/stepo/git/videoTeror/data/haar-face.xml", 0.25,
-                                                       cv::Size(10, 10), cv::Size(40, 40));
-    VideoTeror::Tracking::ObjectTracker tracker(detector);
+    //std::string cascadeFile = "/home/stepo/Stažené/cascadePUT.xml";
+    std::string cascadeFile = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt_tree.xml";
+    //std::string cascadeFile = "/usr/share/opencv/lbpcascades/lbpcascade_frontalface.xml";
+    VideoTeror::ObjectDetection::HaarDetector detector(cascadeFile, 0.5, cv::Size(8,8), cv::Size(96,96));
+    //cv::Size(10, 10), cv::Size(40, 40));
+
+    VideoTeror::Tracking::ObjectTracker::Settings trackerSettings;
+    //trackerSettings.forgetThreshold = 1;
+    VideoTeror::Tracking::ObjectTracker tracker(detector, trackerSettings);
     VideoTeror::Tracking::ObjectTracker::Result result;
 
-    int index = 0;
+    result = tracker.detectAndTrack(video, progressFunc);
+    std::cout << std::endl;
+
+    /*int index = 0;
     VideoTeror::BGRImage frame, prev, gui;
     video.read(prev);
     cv::Size s(prev.cols, prev.rows);
@@ -54,7 +73,7 @@ int main(int argc, char *argv[])
 
     VideoTeror::GrayscaleImage trajectories = result.drawTrajectories(s);
     cv::imshow("trajectories", trajectories);
-    cv::waitKey(0);
+    cv::waitKey(0);*/
 
     return 0;
 }

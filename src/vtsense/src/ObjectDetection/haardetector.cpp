@@ -8,7 +8,7 @@ HaarDetector::HaarDetector(const std::string &path, double scaleFactor,
       minSize(minSize),
       maxSize(maxSize)
 {
-    classifier.load(path);
+    assert(classifier.load(path));
 }
 
 std::vector<ObjectDetector::DetectionResult> HaarDetector::detect(const BGRImage &curFrame)
@@ -19,7 +19,7 @@ std::vector<ObjectDetector::DetectionResult> HaarDetector::detect(const BGRImage
     cv::resize(frame, resizedFrame, cv::Size(frame.cols*scaleFactor, frame.rows*scaleFactor));
 
     std::vector<cv::Rect> objects;
-    classifier.detectMultiScale(resizedFrame, objects, 1.1, 3, 0, minSize, maxSize);
+    classifier.detectMultiScale(resizedFrame, objects, 1.2, 3, 0, minSize, maxSize);
 
     int id = 0;
     for (const cv::Rect &o : objects)

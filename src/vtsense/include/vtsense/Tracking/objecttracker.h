@@ -37,7 +37,7 @@ public:
 
     ObjectTracker(ObjectDetection::ObjectDetector &detector, const Settings &settings = Settings());
 
-    Result detectAndTrack(cv::VideoCapture &source);
+    Result detectAndTrack(cv::VideoCapture &source, void (*progress)(int) = 0);
     void detectAndTrack(const VideoTeror::BGRImage &prevFrame, const VideoTeror::BGRImage &currentFrame,
                         int frameIndex, Result &result);
 
