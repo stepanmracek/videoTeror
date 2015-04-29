@@ -14,7 +14,6 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
                                    const VideoTeror::BGRImage &currentFrame,
                                    int frameIndex, Result &result)
 {
-    //std::cout << "frame " << frameIndex << std::endl;
     const cv::Size frameSize(prevFrame.cols, prevFrame.rows);
 
     VideoTeror::GrayscaleImage prevGSFrame, currentGSFrame;
@@ -24,6 +23,7 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
 
     // Find objects in current frame
     VideoTeror::ObjectDetection::ObjectDetector::DetectionResult::vector currentFrameObjects = detector.detect(currentFrame);
+    //std::cout << "frame " << frameIndex << "; detections: " << currentFrameObjects.size() << std::endl;
 
     // track points
     if (!trackingPoints.empty()) trackingPoints = pointTracker.track(prevGSFrame, currentGSFrame, trackingPoints);

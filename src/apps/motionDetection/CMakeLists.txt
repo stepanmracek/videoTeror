@@ -11,6 +11,5 @@ add_executable(${PROJECT_NAME} ${${PROJECT_NAME}.Sources})
 target_link_libraries(${PROJECT_NAME}
     vtsense
     vtsenseExtras
-    F3D.faceCommon
     ${QT_LIBRARIES}
 )

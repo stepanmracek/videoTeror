@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(vtsense)
 
-ADD_DEFINITIONS(-std=c++11)
-
 file(GLOB_RECURSE ${PROJECT_NAME}.Sources "src/*.cpp")
 file(GLOB_RECURSE ${PROJECT_NAME}.Headers "include/*.h")
 add_library (${PROJECT_NAME} SHARED ${${PROJECT_NAME}.Sources} ${${PROJECT_NAME}.Headers})
@@ -10,16 +8,18 @@ add_library (${PROJECT_NAME} SHARED ${${PROJECT_NAME}.Sources} ${${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
 	PUBLIC include
 	PRIVATE src
+	PRIVATE "../"
 )
 
 target_link_libraries(${PROJECT_NAME}
-	PUBLIC opencv_core
-	PUBLIC opencv_highgui
-	PUBLIC opencv_imgproc
-	PUBLIC opencv_ml
-	PUBLIC opencv_objdetect
-	PUBLIC opencv_features2d
-	PUBLIC opencv_video
+	opencv_core
+	opencv_highgui
+	opencv_imgproc
+	opencv_ml
+	opencv_objdetect
+	opencv_features2d
+	opencv_video
+	dlib
 )
 
 install(TARGETS ${PROJECT_NAME}	LIBRARY DESTINATION lib)

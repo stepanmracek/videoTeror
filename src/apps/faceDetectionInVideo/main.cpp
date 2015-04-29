@@ -6,6 +6,7 @@
 #include "vtsense/ObjectDetection/haardetector.h"
 #include "vtsense/Tracking/objecttracker.h"
 #include "vtsenseExtras/dircrawler.h"
+#include "vtsense/ObjectDetection/dlibfacedetector.h"
 
 void progressFunc(int percent)
 {
@@ -15,6 +16,8 @@ void progressFunc(int percent)
     int remain = 100 - percent;
     for (int i = 0; i < remain; i+=2)
         std::cout << "-";
+
+    std::cout << " " << percent;
 }
 
 int main(int argc, char *argv[])
@@ -33,20 +36,20 @@ int main(int argc, char *argv[])
     cv::Scalar green(0, 255, 0);
 
     //std::string cascadeFile = "/home/stepo/Stažené/cascadePUT.xml";
-    std::string cascadeFile = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt_tree.xml";
+    //std::string cascadeFile = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt_tree.xml";
     //std::string cascadeFile = "/usr/share/opencv/lbpcascades/lbpcascade_frontalface.xml";
-    VideoTeror::ObjectDetection::HaarDetector detector(cascadeFile, 0.5, cv::Size(8,8), cv::Size(96,96));
-    //cv::Size(10, 10), cv::Size(40, 40));
+    //VideoTeror::ObjectDetection::HaarDetector detector(cascadeFile, 0.5, cv::Size(8,8), cv::Size(96,96));
+    VideoTeror::ObjectDetection::DlibFaceDetector detector(1.0);
 
     VideoTeror::Tracking::ObjectTracker::Settings trackerSettings;
     //trackerSettings.forgetThreshold = 1;
     VideoTeror::Tracking::ObjectTracker tracker(detector, trackerSettings);
     VideoTeror::Tracking::ObjectTracker::Result result;
 
-    result = tracker.detectAndTrack(video, progressFunc);
-    std::cout << std::endl;
+    //result = tracker.detectAndTrack(video, progressFunc);
+    //std::cout << std::endl;
 
-    /*int index = 0;
+    int index = 0;
     VideoTeror::BGRImage frame, prev, gui;
     video.read(prev);
     cv::Size s(prev.cols, prev.rows);
@@ -73,7 +76,7 @@ int main(int argc, char *argv[])
 
     VideoTeror::GrayscaleImage trajectories = result.drawTrajectories(s);
     cv::imshow("trajectories", trajectories);
-    cv::waitKey(0);*/
+    cv::waitKey(0);
 
     return 0;
 }
