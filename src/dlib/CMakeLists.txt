@@ -462,3 +462,5 @@ if (NOT TARGET dlib)
 
 
 endif()
+
+install(TARGETS dlib LIBRARY DESTINATION lib)
