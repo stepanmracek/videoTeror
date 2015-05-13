@@ -36,10 +36,11 @@ int main(int argc, char *argv[])
     cv::Scalar green(0, 255, 0);
 
     //std::string cascadeFile = "/home/stepo/Stažené/cascadePUT.xml";
-    //std::string cascadeFile = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt_tree.xml";
+    std::string cascadeFile = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt_tree.xml";
     //std::string cascadeFile = "/usr/share/opencv/lbpcascades/lbpcascade_frontalface.xml";
-    //VideoTeror::ObjectDetection::HaarDetector detector(cascadeFile, 0.5, cv::Size(8,8), cv::Size(96,96));
-    VideoTeror::ObjectDetection::DlibFaceDetector detector(1.0);
+    //std::string cascadeFile = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
+    VideoTeror::ObjectDetection::HaarDetector detector(cascadeFile, 1, cv::Size(8,8), cv::Size(96,96));
+    //VideoTeror::ObjectDetection::DlibFaceDetector detector(0.5);
 
     VideoTeror::Tracking::ObjectTracker::Settings trackerSettings;
     //trackerSettings.forgetThreshold = 1;

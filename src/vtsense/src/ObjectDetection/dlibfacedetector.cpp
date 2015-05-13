@@ -15,7 +15,18 @@ std::vector<ObjectDetector::DetectionResult> DlibFaceDetector::detect(const BGRI
 
     cv::cvtColor(curFrame, frame, CV_BGR2GRAY);
     cv::resize(frame, resizedFrame, cv::Size(frame.cols*scaleFactor, frame.rows*scaleFactor));
+
     dlib::cv_image<unsigned char> dlibImage(resizedFrame);
+    /*dlib::array2d<unsigned char> dlibImage(resizedFrame.rows, resizedFrame.cols);
+    for (int r = 0; r < resizedFrame.rows; r++)
+    {
+        for (int c = 0; c < resizedFrame.cols; c++)
+        {
+            dlibImage[r][c] = resizedFrame(r, c);
+        }
+    }
+    dlib::pyramid_up(dlibImage);*/
+
     std::vector<dlib::rectangle> objects = detector(dlibImage);
 
     int id = 0;

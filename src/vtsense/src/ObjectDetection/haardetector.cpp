@@ -1,5 +1,7 @@
 #include "vtsense/ObjectDetection/haardetector.h"
 
+#include <stdexcept>
+
 using namespace VideoTeror::ObjectDetection;
 
 HaarDetector::HaarDetector(const std::string &path, double scaleFactor,
@@ -8,7 +10,8 @@ HaarDetector::HaarDetector(const std::string &path, double scaleFactor,
       minSize(minSize),
       maxSize(maxSize)
 {
-    assert(classifier.load(path));
+    if (!classifier.load(path))
+        throw std::runtime_error("Could not load classifier: " + path);
 }
 
 std::vector<ObjectDetector::DetectionResult> HaarDetector::detect(const BGRImage &curFrame)
@@ -19,7 +22,7 @@ std::vector<ObjectDetector::DetectionResult> HaarDetector::detect(const BGRImage
     cv::resize(frame, resizedFrame, cv::Size(frame.cols*scaleFactor, frame.rows*scaleFactor));
 
     std::vector<cv::Rect> objects;
-    classifier.detectMultiScale(resizedFrame, objects, 1.2, 3, 0, minSize, maxSize);
+    classifier.detectMultiScale(resizedFrame, objects, 1.2, 2, 0 | CV_HAAR_SCALE_IMAGE, minSize, maxSize);
 
     int id = 0;
     for (const cv::Rect &o : objects)
