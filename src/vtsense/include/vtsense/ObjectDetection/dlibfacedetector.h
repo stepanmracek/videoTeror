@@ -1,7 +1,7 @@
 #ifndef VT_DLIBFACEDETECTOR_H
 #define VT_DLIBFACEDETECTOR_H
 
-#include "objectdetector.h"
+/*#include "objectdetector.h"
 #include "dlib/image_processing/frontal_face_detector.h"
 
 namespace VideoTeror
@@ -24,7 +24,7 @@ public:
 };
 
 }
-}
+}*/
 
 #endif //VT_HAARDETECTOR_H
 

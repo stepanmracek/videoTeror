@@ -8,7 +8,7 @@ option (VTSENSE_FACE "Compile face module" OFF)
 option (VTSENSE_APPS "Compile apps" OFF)
 
 add_subdirectory(vtsense)
-add_subdirectory(dlib)
+#add_subdirectory(dlib)
 
 if (VTSENSE_EXTRAS)
 	add_subdirectory(vtsenseExtras)
