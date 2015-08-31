@@ -5,7 +5,8 @@ using namespace VideoTeror::Tracking;
 
 ObjectTracker::ObjectTracker(ObjectDetection::ObjectDetector &detector, const Settings &settings) :
     detector(detector),
-    settings(settings)
+    settings(settings),
+    stopRequest(false)
 {
 
 }
@@ -14,6 +15,12 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
                                    const VideoTeror::BGRImage &currentFrame,
                                    int frameIndex, Result &result)
 {
+    if (stopRequest)
+    {
+        stopRequest = false;
+        throw ComputationCanceled("Computation canceled at frame " + std::to_string(frameIndex));
+    }
+
     const cv::Size frameSize(prevFrame.cols, prevFrame.rows);
 
     VideoTeror::GrayscaleImage prevGSFrame, currentGSFrame;
@@ -122,7 +129,7 @@ void ObjectTracker::detectAndTrack(const VideoTeror::BGRImage &prevFrame,
     cleanUpPoints(toRemove);
 }
 
-ObjectTracker::Result ObjectTracker::detectAndTrack(cv::VideoCapture &source, void (*progress)(int))
+ObjectTracker::Result ObjectTracker::detectAndTrack(cv::VideoCapture &source, std::function<void (int)> progress)
 {
     int len = source.get(CV_CAP_PROP_FRAME_COUNT);
     int frameCounter = 1;

@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QInputDialog>
 #include <opencv2/opencv.hpp>
+#include <functional>
 
 #include "vtsense/ObjectDetection/haardetector.h"
 #include "vtsense/Tracking/objecttracker.h"
@@ -10,15 +11,26 @@
 
 void progressFunc(int percent)
 {
-    std::cout << "\r";
-    for (int i = 0; i < percent; i+=2)
-        std::cout << "#";
-    int remain = 100 - percent;
-    for (int i = 0; i < remain; i+=2)
-        std::cout << "-";
-
-    std::cout << " " << percent;
+    std::cout << percent << std::endl;
 }
+
+class ProgressReporter
+{
+public:
+    VideoTeror::Tracking::ObjectTracker &tracker;
+
+    ProgressReporter(VideoTeror::Tracking::ObjectTracker &tracker) : tracker(tracker) {}
+
+    void callbackFunction(int percent)
+    {
+        std::cout << percent << std::endl;
+
+        if (percent >= 5)
+        {
+            tracker.cancel();
+        }
+    }
+};
 
 int main(int argc, char *argv[])
 {
@@ -47,15 +59,17 @@ int main(int argc, char *argv[])
     VideoTeror::Tracking::ObjectTracker tracker(detector, trackerSettings);
     VideoTeror::Tracking::ObjectTracker::Result result;
 
-    //result = tracker.detectAndTrack(video, progressFunc);
-    //std::cout << std::endl;
-
     int index = 0;
     VideoTeror::BGRImage frame, prev, gui;
     video.read(prev);
     cv::Size s(prev.cols, prev.rows);
 
-    index++;
+    //result = tracker.detectAndTrack(video, progressFunc);
+
+    ProgressReporter reporter(tracker);
+    result = tracker.detectAndTrack(video, std::bind(&ProgressReporter::callbackFunction, &reporter, std::placeholders::_1));
+
+    /*index++;
     while (video.read(frame) && cv::waitKey(1) < 0)
     {
         tracker.detectAndTrack(prev, frame, index, result);
@@ -73,7 +87,7 @@ int main(int argc, char *argv[])
 
         cv::imshow("video", gui);
         index++;
-    }
+    }*/
 
     VideoTeror::GrayscaleImage trajectories = result.drawTrajectories(s);
     cv::imshow("trajectories", trajectories);

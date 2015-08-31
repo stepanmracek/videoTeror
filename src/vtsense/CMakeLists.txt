@@ -19,7 +19,7 @@ target_link_libraries(${PROJECT_NAME}
 	opencv_objdetect
 	opencv_features2d
 	opencv_video
-	dlib
+        #dlib
 )
 
 install(TARGETS ${PROJECT_NAME}	LIBRARY DESTINATION lib)
