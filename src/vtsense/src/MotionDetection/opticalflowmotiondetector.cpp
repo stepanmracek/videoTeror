@@ -41,7 +41,7 @@ VideoTeror::GrayscaleImage VideoTeror::MotionDetection::OpticalFlowMotionDetecto
             i++;
         }
     }
-    cv::imshow("flow", test);
+    //cv::imshow("flow", test);
 
     curFrame.copyTo(prevFrame);
     morphClosure(result, 4);

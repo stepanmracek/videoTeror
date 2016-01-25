@@ -21,7 +21,7 @@ VideoTeror::GrayscaleImage VideoTeror::MotionDetection::GradientMotionDetector::
     //cv::Canny(resized, resized, 196, 255);
     cv::Sobel(resized, resized, -1, 1, 1);
 
-    cv::imshow("edges", resized);
+    //cv::imshow("edges", resized);
 
     GrayscaleImage mean = getMeanHistoryImage();
 
@@ -41,7 +41,7 @@ VideoTeror::GrayscaleImage VideoTeror::MotionDetection::GradientMotionDetector::
     //cv::erode(result, result, cv::Mat());
     morphClosure(result, 4);
 
-    cv::imshow("mean", mean);
+    //cv::imshow("mean", mean);
     cv::resize(result, result, cv::Size(curFrame.cols, curFrame.rows), 0, 0, cv::INTER_NEAREST);
 
     return result;

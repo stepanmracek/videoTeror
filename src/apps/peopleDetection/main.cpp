@@ -9,123 +9,87 @@
 #include "vtsense/Tracking/pyrlktracker.h"
 #include "vtsense/Helpers/helpers.h"
 #include "vtsenseExtras/dircrawler.h"
+#include "vtsense/Tracking/objecttracker.h"
 
 void cleanUpPoints(VideoTeror::Points &points, QVector<int> &missCounter, const QVector<int> &toRemove)
 {
-    VideoTeror::Points newPoints;
-    QVector<int> newMissCounter;
+	VideoTeror::Points newPoints;
+	QVector<int> newMissCounter;
 
-    for (int i = 0; i < points.size(); i++)
-    {
-        if (!toRemove.contains(i))
-        {
-            newPoints.push_back(points[i]);
-            newMissCounter.push_back(missCounter[i]);
-        }
-    }
+	for (int i = 0; i < points.size(); i++)
+	{
+		if (!toRemove.contains(i))
+		{
+			newPoints.push_back(points[i]);
+			newMissCounter.push_back(missCounter[i]);
+		}
+	}
 
-    points = newPoints;
-    missCounter = newMissCounter;
+	points = newPoints;
+	missCounter = newMissCounter;
 }
 
 int main(int argc, char *argv[])
 {
-    QStringList filters; filters << "*.mov";
-    QDir dir("/media/data/videoteror/");
-    QStringList videos = VideoTeror::Extras::DirCrawler::recursiveSearch(dir, filters);
+	QStringList filters; filters << "*.mov";
+	QDir dir("/media/data/videoteror/people/");
+	QStringList videos = VideoTeror::Extras::DirCrawler::recursiveSearch(dir, filters);
 
-    QApplication app(argc, argv);
-    bool ok;
-    QString selection = QInputDialog::getItem(NULL, "Select video", "video:", videos, 0, false, &ok);
-    if (!ok) return 0;
+	QApplication app(argc, argv);
+	bool ok;
+	QString selection = QInputDialog::getItem(NULL, "Select video", "video:", videos, 0, false, &ok);
+	if (!ok) return 0;
 
-    cv::VideoCapture video(selection.toStdString());
+	cv::VideoCapture video(selection.toStdString());
 
-    VideoTeror::Points points;
-    QVector<int> missCounter;
-    int personCounter = 0;
-    int forgetThreshold = 120;
+	VideoTeror::ObjectDetection::HogPeopleDetector detector(1.0, 3.0);
+	VideoTeror::Tracking::ObjectTracker tracker(detector);
+	VideoTeror::Tracking::ObjectTracker::Result result;
 
-    VideoTeror::ObjectDetection::HogPeopleDetector detector(0.5, 3.0);
-    VideoTeror::Tracking::PyrLKTracker tracker;
+	int index = 0;
+	VideoTeror::BGRImage frame, prev, gui;
+	cv::Scalar green(0, 255, 0);
+	video.read(prev);
+	cv::Size s(prev.cols, prev.rows);
 
-    cv::Scalar green(0, 255, 0);
-    cv::Scalar red(0, 0, 255);
-    VideoTeror::BGRImage frame, prev, gui;
-    video.read(prev);
-    char key;
-    while((key = cv::waitKey(1)) != 27 && video.read(frame))
-    {
-        frame.copyTo(gui);
-        if (key == ' ') cv::waitKey();
-        VideoTeror::ObjectDetection::ObjectDetector::DetectionResult::vector people = detector.detect(frame);
+	/*cv::VideoWriter videoWriter("peopleDetection.avi", CV_FOURCC('M','P','4','V'), video.get(CV_CAP_PROP_FPS), prev.size());
+	if (!videoWriter.isOpened())
+	{
+		throw std::runtime_error("Can't write to output video");
+	}*/
 
-        for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
-        //for (unsigned int i = 0; i < people.objects.size(); i++)
-        {
-            cv::Rect rect = dr.toPixelRegion(frame.cols, frame.rows);
-            cv::putText(gui, std::to_string(dr.score), rect.tl() + cv::Point(0, -10), cv::FONT_HERSHEY_SIMPLEX, 0.5, green, 1, CV_AA);
-            cv::rectangle(gui, rect, green);
+	index++;
+	char key;
+	while (video.read(frame) && (key = cv::waitKey(1)) != 27)
+	{
+		tracker.detectAndTrack(prev, frame, index, result);
+		frame.copyTo(gui);
 
-            // is there some point already within the rectangle?
-            bool hit = false;
-            for (unsigned int j = 0; j < points.size(); j++)
-            {
-                if (rect.contains(points[j])) hit = true;
-            }
+		for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &o : result.objectsPerFrame[index])
+		{
+			cv::rectangle(gui, o.toPixelRegion(s), green, 3);
+			cv::circle(gui, o.toPixelPoint(s), 3, green, 1, CV_AA);
+			cv::putText(gui, std::to_string(o.id), o.toPixelRegion(s).tl() + cv::Point(0, 15),
+						cv::FONT_HERSHEY_SIMPLEX, 0.5, green, 1, CV_AA);
+		}
 
-            if (!hit)
-            {
-                personCounter++;
-                VideoTeror::Point p(rect.x + rect.width*0.5, rect.y + rect.height*0.33);
-                points.push_back(p);
-                missCounter.push_back(0);
-                qDebug() << "new point" << p.x << p.y;
-                cv::rectangle(gui, rect, red, 3);
-                cv::circle(gui, p, 10, red, 3);
-                cv::imshow("video", gui);
-                if ((char) cv::waitKey() == 's')
-                {
-                    cv::imwrite("shot.png", gui);
-                }
-            }
-        }
+		frame.copyTo(prev);
 
-        // is some point outside of rectangle for long time?
-        QVector<int> toRemove;
-        for (int pIndex = 0; pIndex < points.size(); pIndex++)
-        {
-            bool hit = false;
-            for (const VideoTeror::ObjectDetection::ObjectDetector::DetectionResult &dr : people)
-            //for (const cv::Rect &rect : people.objects)
-            {
-                cv::Rect rect = dr.toPixelRegion(frame.cols, frame.rows);
-                if (rect.contains(points[pIndex]))
-                {
-                    hit = true;
-                    break;
-                }
-            }
+		cv::imshow("video", gui);
+		if (key == 's')
+		{
+			cv::imwrite("people-detection-" + std::to_string(index) + ".png", gui);
+		}
 
-            if (!hit) missCounter[pIndex]++;
-            if (missCounter[pIndex] >= forgetThreshold) toRemove << pIndex;
-        }
-        cleanUpPoints(points, missCounter, toRemove);
+		//videoWriter << gui;
 
-        if (!points.empty()) points = tracker.track(prev, frame, points);
-        for (VideoTeror::Point p : points)
-        {
-            cv::circle(gui, p, 5, green);
-        }
+		index++;
+	}
 
+	VideoTeror::GrayscaleImage trajectories = result.drawTrajectories(s);
+	cv::imshow("trajectories", trajectories);
+	cv::waitKey(0);
+	cv::imwrite("people-trajectories.png", trajectories);
 
-        std::stringstream ss;
-        ss << "detected persons: " << personCounter;
-        cv::putText(gui, ss.str(), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, green, 1, CV_AA);
-
-        cv::imshow("video", gui);
-        frame.copyTo(prev);
-    }
-
-    return 0;
+	return 0;
 }
