@@ -14,7 +14,7 @@ class BackgroundSubtractorDetector : public MotionDetector
 {
 private:
     GrayscaleImage foreground;
-    cv::BackgroundSubtractorMOG2 bs;
+    cv::Ptr<cv::BackgroundSubtractorMOG2> bs;
     int morphClosureParam;
     int scaleParam;
 

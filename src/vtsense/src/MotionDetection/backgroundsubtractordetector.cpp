@@ -4,7 +4,7 @@ VideoTeror::MotionDetection::BackgroundSubtractorDetector::BackgroundSubtractorD
     morphClosureParam(morphClosureParam),
     scaleParam(scaleParam)
 {
-
+    bs = cv::createBackgroundSubtractorMOG2();
 }
 
 VideoTeror::GrayscaleImage VideoTeror::MotionDetection::BackgroundSubtractorDetector::getForeground()
@@ -16,7 +16,7 @@ VideoTeror::GrayscaleImage VideoTeror::MotionDetection::BackgroundSubtractorDete
 {
     GrayscaleImage frame;
     cv::resize(curFrame, frame, cv::Size(curFrame.cols/scaleParam, curFrame.rows/scaleParam));
-    bs(frame, foreground);
+    bs->apply(frame, foreground);
 
     GrayscaleImage result = GrayscaleImage::zeros(frame.rows, frame.cols);
     for (int r = 0; r < frame.rows; r++)

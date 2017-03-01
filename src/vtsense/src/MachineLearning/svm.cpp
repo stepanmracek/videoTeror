@@ -4,7 +4,7 @@ using namespace VideoTeror::MachineLearning;
 
 SVM::SVM()
 {
-    svm = new cv::SVM();
+    svm = cv::ml::SVM::create();
 }
 
 void SVM::learn(const std::vector<MatF> &samples, const std::vector<bool> &labels)
@@ -25,29 +25,28 @@ void SVM::learn(const std::vector<MatF> &samples, const std::vector<bool> &label
         }
     }
 
-    cv::SVMParams params;
-    params.svm_type = cv::SVM::C_SVC;
-    params.kernel_type = cv::SVM::LINEAR;
-    params.term_crit   = cv::TermCriteria(CV_TERMCRIT_ITER, 1000, 1e-6);
-    svm->train(data, responses, cv::Mat(), cv::Mat(), params);
+    svm->setType(cv::ml::SVM::C_SVC);
+    svm->setKernel(cv::ml::SVM::LINEAR);
+    svm->setTermCriteria(cv::TermCriteria(CV_TERMCRIT_ITER, 1000, 1e-6));
+    svm->trainAuto(cv::ml::TrainData::create(data, cv::ml::COL_SAMPLE, labels));
 }
 
 float SVM::classify(const MatF &input)
 {
-    return svm->predict(input, true);
+    return svm->predict(input, cv::noArray(), cv::ml::StatModel::RAW_OUTPUT);
 }
 
 bool SVM::serialize(cv::FileStorage &storage)
 {
     if (!storage.isOpened()) throw("FileStorage is not opened");
-    svm->write(*storage, "svm");
+    svm->write(storage);
     return true;
 }
 
 bool SVM::deserialize(cv::FileStorage &storage)
 {
     if (!storage.isOpened()) throw("FileStorage is not opened");
-    svm->read(*storage, *storage["svm"]);
+    //cv::ml::SVM::read(storage["myNodeName"])
+    throw std::runtime_error("Not implemented for OpenCV 3.2");
     return true;
-
 }

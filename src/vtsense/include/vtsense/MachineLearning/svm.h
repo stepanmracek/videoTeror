@@ -11,7 +11,7 @@ namespace MachineLearning
 class SVM : public BinaryClassifier
 {
 protected:
-    cv::Ptr<cv::SVM> svm;
+    cv::Ptr<cv::ml::SVM> svm;
 
 public:
     SVM();

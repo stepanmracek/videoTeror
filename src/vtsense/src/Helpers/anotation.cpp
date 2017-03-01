@@ -99,7 +99,7 @@ std::vector<cv::Point2f> Anotation::anotatePoints(const BGRImage &frame)
 
 void Anotation::extractFeatures(const std::vector<BGRImage> &textures, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors)
 {
-    cv::ORB featureExtractor;
+    cv::Ptr<cv::ORB> featureExtractor = cv::ORB::create();
     keypoints.clear();
     unsigned int n = textures.size();
     std::vector<cv::Mat> descriptorsPerTexture(n);
@@ -107,7 +107,7 @@ void Anotation::extractFeatures(const std::vector<BGRImage> &textures, std::vect
     for (unsigned int i = 0; i < n; i++)
     {
         std::vector<cv::KeyPoint> kp;
-        featureExtractor(textures[i], cv::Mat(), kp, descriptorsPerTexture[i]);
+        featureExtractor->compute(textures[i], kp, descriptorsPerTexture[i]);
         r += descriptorsPerTexture[i].rows;
 
         std::cout << kp.size() << std::endl;
@@ -117,7 +117,7 @@ void Anotation::extractFeatures(const std::vector<BGRImage> &textures, std::vect
             keypoints.push_back(kp[j]);
     }
 
-    descriptors = cv::Mat(r, featureExtractor.descriptorSize(), featureExtractor.descriptorType());
+    descriptors = cv::Mat(r, featureExtractor->descriptorSize(), featureExtractor->descriptorType());
     r = 0;
     for (unsigned int i = 0; i < n; i++)
     {
