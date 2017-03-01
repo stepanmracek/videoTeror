@@ -75,12 +75,6 @@ int main(int argc, char *argv[])
 	ProgressReporter reporter(tracker);
 	//result = tracker.detectAndTrack(video, std::bind(&ProgressReporter::callbackFunction, &reporter, std::placeholders::_1));
 
-	cv::VideoWriter videoWriter("faceDetection.avi", CV_FOURCC('M','P','4','V'), video.get(CV_CAP_PROP_FPS), prev.size());
-	if (!videoWriter.isOpened())
-	{
-		throw std::runtime_error("Can't write to output video");
-	}
-
 	index++;
 	char key;
 	while (video.read(frame) && (key = cv::waitKey(1)) != 27)
