@@ -23,9 +23,9 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    Face::ObjectDetection::FaceDetection detector("/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml",
-                                                  "/usr/share/opencv/haarcascades/haarcascade_lefteye_2splits.xml",
-                                                  "/usr/share/opencv/haarcascades/haarcascade_righteye_2splits.xml");
+    Face::ObjectDetection::FaceDetection detector("/usr/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml",
+                                                  "/usr/share/OpenCV/haarcascades/haarcascade_lefteye_2splits.xml",
+                                                  "/usr/share/OpenCV/haarcascades/haarcascade_righteye_2splits.xml");
 
     QStringList videoDeviceFilter; videoDeviceFilter << "video*";
     QStringList videoDevices = VideoTeror::Extras::DirCrawler::recursiveSearch(QDir("/dev/"), videoDeviceFilter);
